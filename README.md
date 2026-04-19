@@ -114,10 +114,10 @@ build\Release\nwspeech.exe
 
 | 模型 | 目录 | 所需文件 |
 |------|------|----------|
-| Silero VAD | `models/silero_vad.onnx` | `silero_vad.onnx` |
-| Streaming Zipformer | `models/streaming-zipformer/` | `encoder-epoch-20-avg-1.int8.onnx`、`decoder-epoch-20-avg-1.int8.onnx`、`joiner-epoch-20-avg-1.int8.onnx`、`tokens.txt`、`bpe.model` |
-| FireRed ASR CTC | `models/fire-red-asr2-ctc/` | `model.int8.onnx`、`tokens.txt` |
-| FireRed ASR | `models/fire-red-asr2/` | `encoder.int8.onnx`、`decoder.int8.onnx`、`tokens.txt` |
+| Silero VAD | `models/` | `silero_vad.onnx` |
+| Streaming Zipformer | `models/streaming-zipformer/` | `encoder.onnx`、`decoder.onnx`、`joiner.onnx`、`tokens.txt` |
+| FireRed ASR CTC | `models/fire-red-asr2-ctc/` | `model.onnx`、`tokens.txt` |
+| FireRed ASR | `models/fire-red-asr2/` | `encoder.onnx`、`decoder.onnx`、`tokens.txt` |
 
 ## 依赖库
 

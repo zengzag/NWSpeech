@@ -5,7 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
-models/
+models/fire-red-asr2-ctc/
+models/fire-red-asr2/
 
 # Virtual environments
 .venv
