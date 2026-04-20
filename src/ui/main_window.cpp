@@ -10,6 +10,7 @@
 #include <QToolButton>
 #include <QStandardPaths>
 #include <QSizePolicy>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -140,8 +141,7 @@ void MainWindow::setupUI()
     m_systemPartialLabel->setWordWrap(true);
     m_systemPartialLabel->setVisible(false);
     m_systemPartialLabel->setMinimumHeight(38);
-    m_systemPartialLabel->setMaximumHeight(38);
-    m_systemPartialLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_systemPartialLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_systemPartialLabel->setStyleSheet(R"(
         QLabel {
             background-color: #1C1C1E;
@@ -158,8 +158,7 @@ void MainWindow::setupUI()
     m_micPartialLabel->setWordWrap(true);
     m_micPartialLabel->setVisible(false);
     m_micPartialLabel->setMinimumHeight(38);
-    m_micPartialLabel->setMaximumHeight(38);
-    m_micPartialLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_micPartialLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_micPartialLabel->setStyleSheet(R"(
         QLabel {
             background-color: #1C1C1E;
@@ -453,10 +452,16 @@ void MainWindow::onPartialResultChanged(const QString &text, AudioSourceTag sour
 
 void MainWindow::onFinalResultReceived(const QString &text, AudioSourceTag source)
 {
+    QScrollBar *scrollBar = m_logTextEdit->verticalScrollBar();
+    bool isAtBottom = (scrollBar->value() == scrollBar->maximum());
+
     m_logTextEdit->append(text);
-    QTextCursor cursor = m_logTextEdit->textCursor();
-    cursor.movePosition(QTextCursor::End);
-    m_logTextEdit->setTextCursor(cursor);
+
+    if (isAtBottom) {
+        QTextCursor cursor = m_logTextEdit->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        m_logTextEdit->setTextCursor(cursor);
+    }
 
     if (source == AudioSourceTag::kSystem) {
         m_systemPartialLabel->clear();

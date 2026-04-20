@@ -63,7 +63,7 @@ bool SpeechRecognitionService::Start(const AppConfig &config)
 
     try {
         m_fileSaver = std::make_unique<FileSaver>();
-        if (!m_fileSaver->Initialize(m_config.output_dir, m_config.save_text, m_config.save_audio)) {
+        if (!m_fileSaver->Initialize(m_config.output_dir, m_config.audio_source, m_config.save_text, m_config.save_audio)) {
             emit errorOccurred("初始化文件保存器失败");
             return false;
         }
