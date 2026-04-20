@@ -30,6 +30,10 @@ MainWindow::MainWindow(QWidget *parent)
         saveConfig();
     });
 
+    if (m_floatingWindow) {
+        m_floatingWindow->updateLabelVisibility(m_config.audio_source);
+    }
+
     m_floatingWindowVisible = m_config.floating_window_visible;
     if (m_floatingWindowVisible) {
         m_floatingWindow->show();
@@ -135,6 +139,9 @@ void MainWindow::setupUI()
     m_systemPartialLabel = new QLabel("", this);
     m_systemPartialLabel->setWordWrap(true);
     m_systemPartialLabel->setVisible(false);
+    m_systemPartialLabel->setMinimumHeight(38);
+    m_systemPartialLabel->setMaximumHeight(38);
+    m_systemPartialLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_systemPartialLabel->setStyleSheet(R"(
         QLabel {
             background-color: #1C1C1E;
@@ -150,6 +157,9 @@ void MainWindow::setupUI()
     m_micPartialLabel = new QLabel("", this);
     m_micPartialLabel->setWordWrap(true);
     m_micPartialLabel->setVisible(false);
+    m_micPartialLabel->setMinimumHeight(38);
+    m_micPartialLabel->setMaximumHeight(38);
+    m_micPartialLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_micPartialLabel->setStyleSheet(R"(
         QLabel {
             background-color: #1C1C1E;
@@ -500,10 +510,15 @@ void MainWindow::onExitApp()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (m_forceExit) {
+        // 先保存配置，再关闭浮窗，避免关闭浮窗触发的信号覆盖状态
+        saveConfig(); 
+        
         if (m_service && m_service->IsRunning()) {
             stopRecognition();
         }
         if (m_floatingWindow) {
+            // 关闭浮窗前先断开信号连接，避免修改配置
+            disconnect(m_floatingWindow.get(), &FloatingWindow::windowHidden, nullptr, nullptr);
             m_floatingWindow->close();
         }
         event->accept();
@@ -516,7 +531,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
+    // 先保存配置，再关闭浮窗
+    saveConfig(); 
+    
     if (m_floatingWindow) {
+        // 关闭浮窗前先断开信号连接
+        disconnect(m_floatingWindow.get(), &FloatingWindow::windowHidden, nullptr, nullptr);
         m_floatingWindow->close();
     }
     event->accept();
