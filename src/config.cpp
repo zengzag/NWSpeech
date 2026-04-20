@@ -67,6 +67,12 @@ AppConfig CreateDefaultConfig() {
     config.subtitle_config.background_opacity = 180;
 
     config.floating_window_visible = false;
+
+    config.llm_optimizer_config.enabled = false;
+    config.llm_optimizer_config.api_url = "http://127.0.0.1:1234/v1";
+    config.llm_optimizer_config.model_name = "gemma-4-e2b-it";
+    config.llm_optimizer_config.api_key = "default_key";
+    config.llm_optimizer_config.context_sentences = 3;
     
     return config;
 }
@@ -110,6 +116,14 @@ void SaveConfig(const AppConfig &config, const std::string &file_path) {
 
     settings.beginGroup("UI");
     settings.setValue("floating_window_visible", config.floating_window_visible);
+    settings.endGroup();
+
+    settings.beginGroup("LLMOptimizer");
+    settings.setValue("enabled", config.llm_optimizer_config.enabled);
+    settings.setValue("api_url", QString::fromStdString(config.llm_optimizer_config.api_url));
+    settings.setValue("model_name", QString::fromStdString(config.llm_optimizer_config.model_name));
+    settings.setValue("api_key", QString::fromStdString(config.llm_optimizer_config.api_key));
+    settings.setValue("context_sentences", config.llm_optimizer_config.context_sentences);
     settings.endGroup();
 
     settings.sync();
@@ -206,6 +220,24 @@ AppConfig LoadConfig(const std::string &file_path) {
     settings.beginGroup("UI");
     if (settings.contains("floating_window_visible")) {
         config.floating_window_visible = settings.value("floating_window_visible").toBool();
+    }
+    settings.endGroup();
+
+    settings.beginGroup("LLMOptimizer");
+    if (settings.contains("enabled")) {
+        config.llm_optimizer_config.enabled = settings.value("enabled").toBool();
+    }
+    if (settings.contains("api_url")) {
+        config.llm_optimizer_config.api_url = settings.value("api_url").toString().toStdString();
+    }
+    if (settings.contains("model_name")) {
+        config.llm_optimizer_config.model_name = settings.value("model_name").toString().toStdString();
+    }
+    if (settings.contains("api_key")) {
+        config.llm_optimizer_config.api_key = settings.value("api_key").toString().toStdString();
+    }
+    if (settings.contains("context_sentences")) {
+        config.llm_optimizer_config.context_sentences = settings.value("context_sentences").toInt();
     }
     settings.endGroup();
 

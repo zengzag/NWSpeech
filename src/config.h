@@ -52,6 +52,14 @@ struct AudioDeviceInfo {
     std::string name;
 };
 
+struct LlmOptimizerConfig {
+    bool enabled;
+    std::string api_url;
+    std::string model_name;
+    std::string api_key;
+    int context_sentences;
+};
+
 struct AppConfig {
     std::string models_base_path;
     std::string vad_model_path;
@@ -65,6 +73,7 @@ struct AppConfig {
     RecognitionModeConfig realtime_config;
     RecognitionModeConfig offline_config;
     bool floating_window_visible;
+    LlmOptimizerConfig llm_optimizer_config;
 };
 
 void InitializeModelPaths(AppConfig &config);

@@ -18,7 +18,7 @@ else()
 endif()
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{QtDir})
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui Network)
 
 set(CORE_SOURCES
     src/core/audio_capture.cpp
@@ -41,11 +41,13 @@ set(CORE_HEADERS
 set(SERVICE_SOURCES
     src/service/speech_recognition_service.cpp
     src/service/offline_recognition_service.cpp
+    src/service/llm_optimizer.cpp
 )
 
 set(SERVICE_HEADERS
     src/service/speech_recognition_service.h
     src/service/offline_recognition_service.h
+    src/service/llm_optimizer.h
 )
 
 set(UI_SOURCES
@@ -76,6 +78,7 @@ target_link_libraries(nwspeech PRIVATE
     Qt6::Core
     Qt6::Widgets
     Qt6::Gui
+    Qt6::Network
     sherpa-onnx-cxx-api
     sherpa-onnx-c-api
     onnxruntime

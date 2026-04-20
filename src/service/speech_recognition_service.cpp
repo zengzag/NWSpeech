@@ -6,6 +6,10 @@
 SpeechRecognitionService::SpeechRecognitionService(QObject *parent)
     : QObject(parent), m_running(false)
 {
+    m_llmOptimizer = std::make_unique<LlmOptimizer>(this);
+    connect(m_llmOptimizer.get(), &LlmOptimizer::optimizationResult, this, &SpeechRecognitionService::onLlmOptimizationResult);
+    connect(m_llmOptimizer.get(), &LlmOptimizer::optimizationError, this, &SpeechRecognitionService::onLlmOptimizationError);
+    connect(this, &SpeechRecognitionService::requestOptimizeText, this, &SpeechRecognitionService::onRequestOptimizeText);
 }
 
 SpeechRecognitionService::~SpeechRecognitionService()
@@ -54,6 +58,8 @@ bool SpeechRecognitionService::Start(const AppConfig &config)
     }
 
     m_config = config;
+    m_llmOptimizer->setConfig(config.llm_optimizer_config);
+    m_llmOptimizer->clearHistory();
 
     try {
         m_fileSaver = std::make_unique<FileSaver>();
@@ -240,10 +246,15 @@ void SpeechRecognitionService::recognitionThread(RecognitionPipeline *pipeline)
             if (!result.empty()) {
                 QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
                 QString sourceLabel = (pipeline->tag == AudioSourceTag::kSystem) ? "[系统]" : "[麦克风]";
-                QString text = QString("[%1] %2 %3").arg(timestamp, sourceLabel, QString::fromStdString(result));
+                QString originalText = QString::fromStdString(result);
 
-                emit finalResultReceived(text, pipeline->tag);
-                m_fileSaver->SaveText(result, pipeline->tag);
+                if (m_config.llm_optimizer_config.enabled) {
+                    emit requestOptimizeText(originalText, timestamp, sourceLabel, pipeline->tag);
+                } else {
+                    QString text = QString("[%1] %2 %3").arg(timestamp, sourceLabel, originalText);
+                    emit finalResultReceived(text, pipeline->tag);
+                    m_fileSaver->SaveText(result, pipeline->tag);
+                }
             }
 
             buffer.clear();
@@ -259,4 +270,25 @@ void SpeechRecognitionService::recognitionThread(RecognitionPipeline *pipeline)
     if (is_streaming) {
         pipeline->recognizer->Reset();
     }
+}
+
+void SpeechRecognitionService::onRequestOptimizeText(const QString &text, const QString &timestamp, const QString &sourceLabel, AudioSourceTag source)
+{
+    m_pendingTimestamp = timestamp;
+    m_pendingSourceLabel = sourceLabel;
+    m_pendingSource = source;
+    m_llmOptimizer->optimizeText(text);
+}
+
+void SpeechRecognitionService::onLlmOptimizationResult(const QString &original, const QString &optimized)
+{
+    QString textToUse = optimized.isEmpty() ? original : optimized;
+    QString text = QString("[%1] %2 %3").arg(m_pendingTimestamp, m_pendingSourceLabel, textToUse);
+    emit finalResultReceived(text, m_pendingSource);
+    m_fileSaver->SaveText(textToUse.toStdString(), m_pendingSource);
+}
+
+void SpeechRecognitionService::onLlmOptimizationError(const QString &error)
+{
+    emit errorOccurred(error);
 }

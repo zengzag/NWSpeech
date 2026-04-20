@@ -208,10 +208,40 @@ void SettingsDialog::setupUI()
     subtitleTabLayout->addWidget(subtitleGroup);
     subtitleTabLayout->addStretch();
 
+    QWidget *llmTab = new QWidget(this);
+    QVBoxLayout *llmTabLayout = new QVBoxLayout(llmTab);
+    llmTabLayout->setSpacing(10);
+
+    QGroupBox *llmGroup = new QGroupBox("大语言模型优化", this);
+    QFormLayout *llmLayout = new QFormLayout(llmGroup);
+    llmLayout->setSpacing(8);
+
+    m_llmEnabledCheck = new QCheckBox("启用 LLM 优化", this);
+    llmLayout->addRow("", m_llmEnabledCheck);
+
+    m_llmApiUrlEdit = new QLineEdit(this);
+    llmLayout->addRow(new QLabel("API 地址:", this), m_llmApiUrlEdit);
+
+    m_llmModelNameEdit = new QLineEdit(this);
+    llmLayout->addRow(new QLabel("模型名称:", this), m_llmModelNameEdit);
+
+    m_llmApiKeyEdit = new QLineEdit(this);
+    m_llmApiKeyEdit->setEchoMode(QLineEdit::Password);
+    llmLayout->addRow(new QLabel("API Key:", this), m_llmApiKeyEdit);
+
+    m_llmContextSentencesSpin = new QSpinBox(this);
+    m_llmContextSentencesSpin->setRange(0, 10);
+    m_llmContextSentencesSpin->setValue(3);
+    llmLayout->addRow(new QLabel("上下文句子数:", this), m_llmContextSentencesSpin);
+
+    llmTabLayout->addWidget(llmGroup);
+    llmTabLayout->addStretch();
+
     tabWidget->addTab(basicTab, "基础");
     tabWidget->addTab(realtimeTab, "实时识别");
     tabWidget->addTab(offlineTab, "离线识别");
     tabWidget->addTab(subtitleTab, "浮窗");
+    tabWidget->addTab(llmTab, "LLM 优化");
 
     mainLayout->addWidget(tabWidget);
 
@@ -333,6 +363,12 @@ void SettingsDialog::setConfig(const AppConfig &config)
     m_subtitleTextColorEdit->setText(QString::fromStdString(config.subtitle_config.text_color));
     m_subtitleBgColorEdit->setText(QString::fromStdString(config.subtitle_config.background_color));
     m_subtitleOpacitySpin->setValue(config.subtitle_config.background_opacity);
+
+    m_llmEnabledCheck->setChecked(config.llm_optimizer_config.enabled);
+    m_llmApiUrlEdit->setText(QString::fromStdString(config.llm_optimizer_config.api_url));
+    m_llmModelNameEdit->setText(QString::fromStdString(config.llm_optimizer_config.model_name));
+    m_llmApiKeyEdit->setText(QString::fromStdString(config.llm_optimizer_config.api_key));
+    m_llmContextSentencesSpin->setValue(config.llm_optimizer_config.context_sentences);
 }
 
 AppConfig SettingsDialog::getConfig() const
@@ -369,6 +405,12 @@ AppConfig SettingsDialog::getConfig() const
     config.subtitle_config.text_color = m_subtitleTextColorEdit->text().toStdString();
     config.subtitle_config.background_color = m_subtitleBgColorEdit->text().toStdString();
     config.subtitle_config.background_opacity = m_subtitleOpacitySpin->value();
+
+    config.llm_optimizer_config.enabled = m_llmEnabledCheck->isChecked();
+    config.llm_optimizer_config.api_url = m_llmApiUrlEdit->text().toStdString();
+    config.llm_optimizer_config.model_name = m_llmModelNameEdit->text().toStdString();
+    config.llm_optimizer_config.api_key = m_llmApiKeyEdit->text().toStdString();
+    config.llm_optimizer_config.context_sentences = m_llmContextSentencesSpin->value();
 
     return config;
 }

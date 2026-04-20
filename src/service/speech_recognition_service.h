@@ -12,6 +12,7 @@
 #include "core/voice_activity_detector.h"
 #include "core/audio_resampler.h"
 #include "core/file_saver.h"
+#include "service/llm_optimizer.h"
 
 struct RecognitionPipeline {
     AudioSourceTag tag;
@@ -43,6 +44,12 @@ signals:
     void partialResultChanged(const QString &text, AudioSourceTag source);
     void finalResultReceived(const QString &text, AudioSourceTag source);
     void errorOccurred(const QString &error);
+    void requestOptimizeText(const QString &text, const QString &timestamp, const QString &sourceLabel, AudioSourceTag source);
+
+private slots:
+    void onLlmOptimizationResult(const QString &original, const QString &optimized);
+    void onLlmOptimizationError(const QString &error);
+    void onRequestOptimizeText(const QString &text, const QString &timestamp, const QString &sourceLabel, AudioSourceTag source);
 
 private:
     void recognitionThread(RecognitionPipeline *pipeline);
@@ -52,8 +59,12 @@ private:
     RecognitionPipeline m_micPipeline;
 
     std::unique_ptr<FileSaver> m_fileSaver;
+    std::unique_ptr<LlmOptimizer> m_llmOptimizer;
 
     std::atomic<bool> m_running;
+    QString m_pendingTimestamp;
+    QString m_pendingSourceLabel;
+    AudioSourceTag m_pendingSource;
 
     AppConfig m_config;
 };

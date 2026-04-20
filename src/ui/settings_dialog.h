@@ -62,6 +62,12 @@ private:
     QLineEdit *m_subtitleBgColorEdit;
     QSpinBox *m_subtitleOpacitySpin;
 
+    QCheckBox *m_llmEnabledCheck;
+    QLineEdit *m_llmApiUrlEdit;
+    QLineEdit *m_llmModelNameEdit;
+    QLineEdit *m_llmApiKeyEdit;
+    QSpinBox *m_llmContextSentencesSpin;
+
     AppConfig m_config;
 };
 
