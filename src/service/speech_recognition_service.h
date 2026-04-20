@@ -48,7 +48,6 @@ signals:
 
 private slots:
     void onLlmOptimizationResult(const QString &original, const QString &optimized);
-    void onLlmOptimizationError(const QString &error);
     void onRequestOptimizeText(const QString &text, const QString &timestamp, const QString &sourceLabel, AudioSourceTag source);
 
 private:

@@ -74,6 +74,12 @@ AppConfig CreateDefaultConfig() {
     config.llm_optimizer_config.api_key = "default_key";
     config.llm_optimizer_config.context_sentences = 3;
     config.llm_optimizer_config.prompt = "你是一个语音识别结果优化助手。你的任务是：\n1. 修正识别中的错词、别字\n2. 添加合适的标点符号\n3. 适当断句，使语句通顺\n4. 保持原意不变\n\n请只返回优化后的当前句子，不要添加其他说明。\n\n上下文历史：\n{context}\n当前句子：\n{current}\n\n优化结果：";
+
+    config.llm_summary_config.enabled = false;
+    config.llm_summary_config.api_url = "http://127.0.0.1:1234/v1";
+    config.llm_summary_config.model_name = "gemma-4-e2b-it";
+    config.llm_summary_config.api_key = "default_key";
+    config.llm_summary_config.prompt = "请根据以下会议记录，生成一份清晰、结构化的会议纪要。纪要应包含：\n1. 会议时间和主题\n2. 参会人员（如提及）\n3. 讨论的主要内容\n4. 形成的决议或结论\n5. 待办事项和责任人（如提及）\n\n请用简洁、专业的语言整理，使用适当的标题和列表格式。\n\n会议记录内容：\n{content}\n\n会议纪要：";
     
     return config;
 }
@@ -126,6 +132,14 @@ void SaveConfig(const AppConfig &config, const std::string &file_path) {
     settings.setValue("api_key", QString::fromStdString(config.llm_optimizer_config.api_key));
     settings.setValue("context_sentences", config.llm_optimizer_config.context_sentences);
     settings.setValue("prompt", QString::fromStdString(config.llm_optimizer_config.prompt));
+    settings.endGroup();
+
+    settings.beginGroup("LLMSummary");
+    settings.setValue("enabled", config.llm_summary_config.enabled);
+    settings.setValue("api_url", QString::fromStdString(config.llm_summary_config.api_url));
+    settings.setValue("model_name", QString::fromStdString(config.llm_summary_config.model_name));
+    settings.setValue("api_key", QString::fromStdString(config.llm_summary_config.api_key));
+    settings.setValue("prompt", QString::fromStdString(config.llm_summary_config.prompt));
     settings.endGroup();
 
     settings.sync();
@@ -243,6 +257,24 @@ AppConfig LoadConfig(const std::string &file_path) {
     }
     if (settings.contains("prompt")) {
         config.llm_optimizer_config.prompt = settings.value("prompt").toString().toStdString();
+    }
+    settings.endGroup();
+
+    settings.beginGroup("LLMSummary");
+    if (settings.contains("enabled")) {
+        config.llm_summary_config.enabled = settings.value("enabled").toBool();
+    }
+    if (settings.contains("api_url")) {
+        config.llm_summary_config.api_url = settings.value("api_url").toString().toStdString();
+    }
+    if (settings.contains("model_name")) {
+        config.llm_summary_config.model_name = settings.value("model_name").toString().toStdString();
+    }
+    if (settings.contains("api_key")) {
+        config.llm_summary_config.api_key = settings.value("api_key").toString().toStdString();
+    }
+    if (settings.contains("prompt")) {
+        config.llm_summary_config.prompt = settings.value("prompt").toString().toStdString();
     }
     settings.endGroup();
 

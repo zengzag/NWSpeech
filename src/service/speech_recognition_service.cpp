@@ -8,7 +8,6 @@ SpeechRecognitionService::SpeechRecognitionService(QObject *parent)
 {
     m_llmOptimizer = std::make_unique<LlmOptimizer>(this);
     connect(m_llmOptimizer.get(), &LlmOptimizer::optimizationResult, this, &SpeechRecognitionService::onLlmOptimizationResult);
-    connect(m_llmOptimizer.get(), &LlmOptimizer::optimizationError, this, &SpeechRecognitionService::onLlmOptimizationError);
     connect(this, &SpeechRecognitionService::requestOptimizeText, this, &SpeechRecognitionService::onRequestOptimizeText);
 }
 
@@ -58,7 +57,7 @@ bool SpeechRecognitionService::Start(const AppConfig &config)
     }
 
     m_config = config;
-    m_llmOptimizer->setConfig(config.llm_optimizer_config);
+    m_llmOptimizer->setOptimizerConfig(config.llm_optimizer_config);
     m_llmOptimizer->clearHistory();
 
     try {
@@ -286,9 +285,4 @@ void SpeechRecognitionService::onLlmOptimizationResult(const QString &original, 
     QString text = QString("[%1] %2 %3").arg(m_pendingTimestamp, m_pendingSourceLabel, textToUse);
     emit finalResultReceived(text, m_pendingSource);
     m_fileSaver->SaveText(textToUse.toStdString(), m_pendingSource);
-}
-
-void SpeechRecognitionService::onLlmOptimizationError(const QString &error)
-{
-    emit errorOccurred(error);
 }

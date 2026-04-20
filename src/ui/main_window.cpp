@@ -1,5 +1,6 @@
 #include "ui/main_window.h"
 #include "ui/settings_dialog.h"
+#include "service/llm_optimizer.h"
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QStyle>
@@ -11,6 +12,10 @@
 #include <QStandardPaths>
 #include <QSizePolicy>
 #include <QScrollBar>
+#include <QDialog>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -52,6 +57,13 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::onOfflineFinished);
     connect(m_offlineService.get(), &OfflineRecognitionService::errorOccurred,
             this, &MainWindow::onOfflineError);
+
+    m_llmOptimizer = std::make_unique<LlmOptimizer>(this);
+    connect(m_llmOptimizer.get(), &LlmOptimizer::summaryResult, this, &MainWindow::onSummaryResult);
+    connect(m_llmOptimizer.get(), &LlmOptimizer::summaryComplete, this, [this]() {
+        m_summaryButton->setEnabled(true);
+        m_summaryButton->setText("智能纪要");
+    });
 }
 
 MainWindow::~MainWindow()
@@ -204,6 +216,31 @@ void MainWindow::setupUI()
     )");
     mainLayout->addWidget(m_logTextEdit, 1);
 
+    m_summaryButton = new QPushButton("智能纪要", this);
+    m_summaryButton->setVisible(false);
+    m_summaryButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #0A84FF;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        QPushButton:hover {
+            background-color: #409CFF;
+        }
+        QPushButton:pressed {
+            background-color: #006EDB;
+        }
+        QPushButton:disabled {
+            background-color: #3A3A3A;
+            color: #666666;
+        }
+    )");
+    mainLayout->addWidget(m_summaryButton);
+
     QStatusBar *statusBar = this->statusBar();
     statusBar->setStyleSheet(R"(
         QStatusBar {
@@ -226,6 +263,7 @@ void MainWindow::setupUI()
     connect(m_startAction, &QAction::triggered, this, &MainWindow::onStartClicked);
     connect(m_stopAction, &QAction::triggered, this, &MainWindow::onStopClicked);
     connect(m_floatingWindowAction, &QAction::triggered, this, &MainWindow::onToggleFloatingWindow);
+    connect(m_summaryButton, &QPushButton::clicked, this, &MainWindow::onGenerateSummary);
 
     m_statusTimer = new QTimer(this);
     connect(m_statusTimer, &QTimer::timeout, this, &MainWindow::updateStatus);
@@ -369,6 +407,9 @@ void MainWindow::startRecognition()
         return;
     }
 
+    m_recognitionResults.clear();
+    m_summaryButton->setVisible(false);
+
     m_service = std::make_unique<SpeechRecognitionService>(this);
 
     connect(m_service.get(), &SpeechRecognitionService::partialResultChanged,
@@ -414,6 +455,12 @@ void MainWindow::stopRecognition()
         if (m_floatingWindow) {
             m_floatingWindow->clearText();
         }
+
+        if (!m_recognitionResults.isEmpty() && m_config.llm_summary_config.enabled) {
+            m_summaryButton->setVisible(true);
+        } else {
+            m_summaryButton->setVisible(false);
+        }
     }
 }
 
@@ -452,6 +499,8 @@ void MainWindow::onPartialResultChanged(const QString &text, AudioSourceTag sour
 
 void MainWindow::onFinalResultReceived(const QString &text, AudioSourceTag source)
 {
+    m_recognitionResults.append(text);
+
     QScrollBar *scrollBar = m_logTextEdit->verticalScrollBar();
     bool isAtBottom = (scrollBar->value() == scrollBar->maximum());
 
@@ -684,4 +733,77 @@ void MainWindow::styleToolbarButtons()
             )");
         }
     }
+}
+
+void MainWindow::onGenerateSummary()
+{
+    if (m_recognitionResults.isEmpty()) {
+        QMessageBox::information(this, "提示", "没有识别内容可生成纪要");
+        return;
+    }
+
+    QString content = m_recognitionResults.join("\n");
+    m_llmOptimizer->setSummaryConfig(m_config.llm_summary_config);
+    m_summaryButton->setEnabled(false);
+    m_summaryButton->setText("生成中...");
+    m_llmOptimizer->generateSummary(content);
+}
+
+void MainWindow::onSummaryResult(const QString &summary)
+{
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("会议纪要");
+    dialog->setMinimumSize(600, 500);
+
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(12, 12, 12, 12);
+    layout->setSpacing(10);
+
+    QTextEdit *textEdit = new QTextEdit(dialog);
+    textEdit->setReadOnly(false);
+    textEdit->setPlainText(summary);
+    textEdit->setStyleSheet(R"(
+        QTextEdit {
+            background-color: #1C1C1E;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            color: #E5E5EA;
+        }
+    )");
+    layout->addWidget(textEdit, 1);
+
+    QPushButton *closeBtn = new QPushButton("关闭", dialog);
+    closeBtn->setStyleSheet(R"(
+        QPushButton {
+            background-color: #3A3A3C;
+            color: #E5E5EA;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 24px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        QPushButton:hover {
+            background-color: #4A4A4C;
+        }
+        QPushButton:pressed {
+            background-color: #5A5A5C;
+        }
+    )");
+    connect(closeBtn, &QPushButton::clicked, dialog, &QDialog::accept);
+
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    btnLayout->addStretch();
+    btnLayout->addWidget(closeBtn);
+    layout->addLayout(btnLayout);
+
+    dialog->setStyleSheet(R"(
+        QDialog {
+            background-color: #000000;
+        }
+    )");
+
+    dialog->exec();
 }

@@ -61,6 +61,14 @@ struct LlmOptimizerConfig {
     std::string prompt;
 };
 
+struct LlmSummaryConfig {
+    bool enabled;
+    std::string api_url;
+    std::string model_name;
+    std::string api_key;
+    std::string prompt;
+};
+
 struct AppConfig {
     std::string models_base_path;
     std::string vad_model_path;
@@ -75,6 +83,7 @@ struct AppConfig {
     RecognitionModeConfig offline_config;
     bool floating_window_visible;
     LlmOptimizerConfig llm_optimizer_config;
+    LlmSummaryConfig llm_summary_config;
 };
 
 void InitializeModelPaths(AppConfig &config);

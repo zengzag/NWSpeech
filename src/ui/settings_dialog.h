@@ -63,12 +63,18 @@ private:
     QLineEdit *m_subtitleBgColorEdit;
     QSpinBox *m_subtitleOpacitySpin;
 
-    QCheckBox *m_llmEnabledCheck;
-    QLineEdit *m_llmApiUrlEdit;
-    QLineEdit *m_llmModelNameEdit;
-    QLineEdit *m_llmApiKeyEdit;
-    QSpinBox *m_llmContextSentencesSpin;
-    QTextEdit *m_llmPromptEdit;
+    QCheckBox *m_llmOptimizerEnabledCheck;
+    QLineEdit *m_llmOptimizerApiUrlEdit;
+    QLineEdit *m_llmOptimizerModelNameEdit;
+    QLineEdit *m_llmOptimizerApiKeyEdit;
+    QSpinBox *m_llmOptimizerContextSentencesSpin;
+    QTextEdit *m_llmOptimizerPromptEdit;
+
+    QCheckBox *m_llmSummaryEnabledCheck;
+    QLineEdit *m_llmSummaryApiUrlEdit;
+    QLineEdit *m_llmSummaryModelNameEdit;
+    QLineEdit *m_llmSummaryApiKeyEdit;
+    QTextEdit *m_llmSummaryPromptEdit;
 
     AppConfig m_config;
 };

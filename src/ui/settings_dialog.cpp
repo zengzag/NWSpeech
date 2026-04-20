@@ -208,45 +208,75 @@ void SettingsDialog::setupUI()
     subtitleTabLayout->addWidget(subtitleGroup);
     subtitleTabLayout->addStretch();
 
-    QWidget *llmTab = new QWidget(this);
-    QVBoxLayout *llmTabLayout = new QVBoxLayout(llmTab);
-    llmTabLayout->setSpacing(10);
+    QWidget *llmOptimizerTab = new QWidget(this);
+    QVBoxLayout *llmOptimizerTabLayout = new QVBoxLayout(llmOptimizerTab);
+    llmOptimizerTabLayout->setSpacing(10);
 
-    QGroupBox *llmGroup = new QGroupBox("大语言模型优化", this);
-    QFormLayout *llmLayout = new QFormLayout(llmGroup);
-    llmLayout->setSpacing(8);
+    QGroupBox *llmOptimizerGroup = new QGroupBox("文本优化设置", this);
+    QFormLayout *llmOptimizerLayout = new QFormLayout(llmOptimizerGroup);
+    llmOptimizerLayout->setSpacing(8);
 
-    m_llmEnabledCheck = new QCheckBox("启用 LLM 优化", this);
-    llmLayout->addRow("", m_llmEnabledCheck);
+    m_llmOptimizerEnabledCheck = new QCheckBox("启用文本优化", this);
+    llmOptimizerLayout->addRow("", m_llmOptimizerEnabledCheck);
 
-    m_llmApiUrlEdit = new QLineEdit(this);
-    llmLayout->addRow(new QLabel("API 地址:", this), m_llmApiUrlEdit);
+    m_llmOptimizerApiUrlEdit = new QLineEdit(this);
+    llmOptimizerLayout->addRow(new QLabel("API 地址:", this), m_llmOptimizerApiUrlEdit);
 
-    m_llmModelNameEdit = new QLineEdit(this);
-    llmLayout->addRow(new QLabel("模型名称:", this), m_llmModelNameEdit);
+    m_llmOptimizerModelNameEdit = new QLineEdit(this);
+    llmOptimizerLayout->addRow(new QLabel("模型名称:", this), m_llmOptimizerModelNameEdit);
 
-    m_llmApiKeyEdit = new QLineEdit(this);
-    m_llmApiKeyEdit->setEchoMode(QLineEdit::Password);
-    llmLayout->addRow(new QLabel("API Key:", this), m_llmApiKeyEdit);
+    m_llmOptimizerApiKeyEdit = new QLineEdit(this);
+    m_llmOptimizerApiKeyEdit->setEchoMode(QLineEdit::Password);
+    llmOptimizerLayout->addRow(new QLabel("API Key:", this), m_llmOptimizerApiKeyEdit);
 
-    m_llmContextSentencesSpin = new QSpinBox(this);
-    m_llmContextSentencesSpin->setRange(0, 10);
-    m_llmContextSentencesSpin->setValue(3);
-    llmLayout->addRow(new QLabel("上下文句子数:", this), m_llmContextSentencesSpin);
+    m_llmOptimizerContextSentencesSpin = new QSpinBox(this);
+    m_llmOptimizerContextSentencesSpin->setRange(0, 10);
+    m_llmOptimizerContextSentencesSpin->setValue(3);
+    llmOptimizerLayout->addRow(new QLabel("上下文句子数:", this), m_llmOptimizerContextSentencesSpin);
 
-    m_llmPromptEdit = new QTextEdit(this);
-    m_llmPromptEdit->setMinimumHeight(150);
-    m_llmPromptEdit->setPlaceholderText("提示词模板，支持 {context} 和 {current} 占位符");
-    llmLayout->addRow(new QLabel("提示词模板:", this), m_llmPromptEdit);
+    m_llmOptimizerPromptEdit = new QTextEdit(this);
+    m_llmOptimizerPromptEdit->setMinimumHeight(150);
+    m_llmOptimizerPromptEdit->setPlaceholderText("提示词模板，支持 {context} 和 {current} 占位符");
+    llmOptimizerLayout->addRow(new QLabel("提示词模板:", this), m_llmOptimizerPromptEdit);
 
-    llmTabLayout->addWidget(llmGroup);
-    llmTabLayout->addStretch();
+    llmOptimizerTabLayout->addWidget(llmOptimizerGroup);
+    llmOptimizerTabLayout->addStretch();
+
+    QWidget *llmSummaryTab = new QWidget(this);
+    QVBoxLayout *llmSummaryTabLayout = new QVBoxLayout(llmSummaryTab);
+    llmSummaryTabLayout->setSpacing(10);
+
+    QGroupBox *llmSummaryGroup = new QGroupBox("会议纪要设置", this);
+    QFormLayout *llmSummaryLayout = new QFormLayout(llmSummaryGroup);
+    llmSummaryLayout->setSpacing(8);
+
+    m_llmSummaryEnabledCheck = new QCheckBox("启用会议纪要", this);
+    llmSummaryLayout->addRow("", m_llmSummaryEnabledCheck);
+
+    m_llmSummaryApiUrlEdit = new QLineEdit(this);
+    llmSummaryLayout->addRow(new QLabel("API 地址:", this), m_llmSummaryApiUrlEdit);
+
+    m_llmSummaryModelNameEdit = new QLineEdit(this);
+    llmSummaryLayout->addRow(new QLabel("模型名称:", this), m_llmSummaryModelNameEdit);
+
+    m_llmSummaryApiKeyEdit = new QLineEdit(this);
+    m_llmSummaryApiKeyEdit->setEchoMode(QLineEdit::Password);
+    llmSummaryLayout->addRow(new QLabel("API Key:", this), m_llmSummaryApiKeyEdit);
+
+    m_llmSummaryPromptEdit = new QTextEdit(this);
+    m_llmSummaryPromptEdit->setMinimumHeight(150);
+    m_llmSummaryPromptEdit->setPlaceholderText("提示词模板，支持 {content} 占位符");
+    llmSummaryLayout->addRow(new QLabel("提示词模板:", this), m_llmSummaryPromptEdit);
+
+    llmSummaryTabLayout->addWidget(llmSummaryGroup);
+    llmSummaryTabLayout->addStretch();
 
     tabWidget->addTab(basicTab, "基础");
     tabWidget->addTab(realtimeTab, "实时识别");
     tabWidget->addTab(offlineTab, "离线识别");
     tabWidget->addTab(subtitleTab, "浮窗");
-    tabWidget->addTab(llmTab, "LLM 优化");
+    tabWidget->addTab(llmOptimizerTab, "LLM 优化");
+    tabWidget->addTab(llmSummaryTab, "LLM 纪要");
 
     mainLayout->addWidget(tabWidget);
 
@@ -369,12 +399,18 @@ void SettingsDialog::setConfig(const AppConfig &config)
     m_subtitleBgColorEdit->setText(QString::fromStdString(config.subtitle_config.background_color));
     m_subtitleOpacitySpin->setValue(config.subtitle_config.background_opacity);
 
-    m_llmEnabledCheck->setChecked(config.llm_optimizer_config.enabled);
-    m_llmApiUrlEdit->setText(QString::fromStdString(config.llm_optimizer_config.api_url));
-    m_llmModelNameEdit->setText(QString::fromStdString(config.llm_optimizer_config.model_name));
-    m_llmApiKeyEdit->setText(QString::fromStdString(config.llm_optimizer_config.api_key));
-    m_llmContextSentencesSpin->setValue(config.llm_optimizer_config.context_sentences);
-    m_llmPromptEdit->setPlainText(QString::fromStdString(config.llm_optimizer_config.prompt));
+    m_llmOptimizerEnabledCheck->setChecked(config.llm_optimizer_config.enabled);
+    m_llmOptimizerApiUrlEdit->setText(QString::fromStdString(config.llm_optimizer_config.api_url));
+    m_llmOptimizerModelNameEdit->setText(QString::fromStdString(config.llm_optimizer_config.model_name));
+    m_llmOptimizerApiKeyEdit->setText(QString::fromStdString(config.llm_optimizer_config.api_key));
+    m_llmOptimizerContextSentencesSpin->setValue(config.llm_optimizer_config.context_sentences);
+    m_llmOptimizerPromptEdit->setPlainText(QString::fromStdString(config.llm_optimizer_config.prompt));
+
+    m_llmSummaryEnabledCheck->setChecked(config.llm_summary_config.enabled);
+    m_llmSummaryApiUrlEdit->setText(QString::fromStdString(config.llm_summary_config.api_url));
+    m_llmSummaryModelNameEdit->setText(QString::fromStdString(config.llm_summary_config.model_name));
+    m_llmSummaryApiKeyEdit->setText(QString::fromStdString(config.llm_summary_config.api_key));
+    m_llmSummaryPromptEdit->setPlainText(QString::fromStdString(config.llm_summary_config.prompt));
 }
 
 AppConfig SettingsDialog::getConfig() const
@@ -412,12 +448,18 @@ AppConfig SettingsDialog::getConfig() const
     config.subtitle_config.background_color = m_subtitleBgColorEdit->text().toStdString();
     config.subtitle_config.background_opacity = m_subtitleOpacitySpin->value();
 
-    config.llm_optimizer_config.enabled = m_llmEnabledCheck->isChecked();
-    config.llm_optimizer_config.api_url = m_llmApiUrlEdit->text().toStdString();
-    config.llm_optimizer_config.model_name = m_llmModelNameEdit->text().toStdString();
-    config.llm_optimizer_config.api_key = m_llmApiKeyEdit->text().toStdString();
-    config.llm_optimizer_config.context_sentences = m_llmContextSentencesSpin->value();
-    config.llm_optimizer_config.prompt = m_llmPromptEdit->toPlainText().toStdString();
+    config.llm_optimizer_config.enabled = m_llmOptimizerEnabledCheck->isChecked();
+    config.llm_optimizer_config.api_url = m_llmOptimizerApiUrlEdit->text().toStdString();
+    config.llm_optimizer_config.model_name = m_llmOptimizerModelNameEdit->text().toStdString();
+    config.llm_optimizer_config.api_key = m_llmOptimizerApiKeyEdit->text().toStdString();
+    config.llm_optimizer_config.context_sentences = m_llmOptimizerContextSentencesSpin->value();
+    config.llm_optimizer_config.prompt = m_llmOptimizerPromptEdit->toPlainText().toStdString();
+
+    config.llm_summary_config.enabled = m_llmSummaryEnabledCheck->isChecked();
+    config.llm_summary_config.api_url = m_llmSummaryApiUrlEdit->text().toStdString();
+    config.llm_summary_config.model_name = m_llmSummaryModelNameEdit->text().toStdString();
+    config.llm_summary_config.api_key = m_llmSummaryApiKeyEdit->text().toStdString();
+    config.llm_summary_config.prompt = m_llmSummaryPromptEdit->toPlainText().toStdString();
 
     return config;
 }
