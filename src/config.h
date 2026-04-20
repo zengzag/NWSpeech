@@ -58,6 +58,7 @@ struct LlmOptimizerConfig {
     std::string model_name;
     std::string api_key;
     int context_sentences;
+    std::string prompt;
 };
 
 struct AppConfig {

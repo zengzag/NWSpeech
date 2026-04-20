@@ -73,6 +73,7 @@ AppConfig CreateDefaultConfig() {
     config.llm_optimizer_config.model_name = "gemma-4-e2b-it";
     config.llm_optimizer_config.api_key = "default_key";
     config.llm_optimizer_config.context_sentences = 3;
+    config.llm_optimizer_config.prompt = "你是一个语音识别结果优化助手。你的任务是：\n1. 修正识别中的错词、别字\n2. 添加合适的标点符号\n3. 适当断句，使语句通顺\n4. 保持原意不变\n\n请只返回优化后的当前句子，不要添加其他说明。\n\n上下文历史：\n{context}\n当前句子：\n{current}\n\n优化结果：";
     
     return config;
 }
@@ -124,6 +125,7 @@ void SaveConfig(const AppConfig &config, const std::string &file_path) {
     settings.setValue("model_name", QString::fromStdString(config.llm_optimizer_config.model_name));
     settings.setValue("api_key", QString::fromStdString(config.llm_optimizer_config.api_key));
     settings.setValue("context_sentences", config.llm_optimizer_config.context_sentences);
+    settings.setValue("prompt", QString::fromStdString(config.llm_optimizer_config.prompt));
     settings.endGroup();
 
     settings.sync();
@@ -238,6 +240,9 @@ AppConfig LoadConfig(const std::string &file_path) {
     }
     if (settings.contains("context_sentences")) {
         config.llm_optimizer_config.context_sentences = settings.value("context_sentences").toInt();
+    }
+    if (settings.contains("prompt")) {
+        config.llm_optimizer_config.prompt = settings.value("prompt").toString().toStdString();
     }
     settings.endGroup();
 

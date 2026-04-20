@@ -10,6 +10,7 @@
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QFormLayout>
+#include <QTextEdit>
 #include "config.h"
 
 class SettingsDialog : public QDialog
@@ -67,6 +68,7 @@ private:
     QLineEdit *m_llmModelNameEdit;
     QLineEdit *m_llmApiKeyEdit;
     QSpinBox *m_llmContextSentencesSpin;
+    QTextEdit *m_llmPromptEdit;
 
     AppConfig m_config;
 };

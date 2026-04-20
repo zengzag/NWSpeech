@@ -234,6 +234,11 @@ void SettingsDialog::setupUI()
     m_llmContextSentencesSpin->setValue(3);
     llmLayout->addRow(new QLabel("上下文句子数:", this), m_llmContextSentencesSpin);
 
+    m_llmPromptEdit = new QTextEdit(this);
+    m_llmPromptEdit->setMinimumHeight(150);
+    m_llmPromptEdit->setPlaceholderText("提示词模板，支持 {context} 和 {current} 占位符");
+    llmLayout->addRow(new QLabel("提示词模板:", this), m_llmPromptEdit);
+
     llmTabLayout->addWidget(llmGroup);
     llmTabLayout->addStretch();
 
@@ -369,6 +374,7 @@ void SettingsDialog::setConfig(const AppConfig &config)
     m_llmModelNameEdit->setText(QString::fromStdString(config.llm_optimizer_config.model_name));
     m_llmApiKeyEdit->setText(QString::fromStdString(config.llm_optimizer_config.api_key));
     m_llmContextSentencesSpin->setValue(config.llm_optimizer_config.context_sentences);
+    m_llmPromptEdit->setPlainText(QString::fromStdString(config.llm_optimizer_config.prompt));
 }
 
 AppConfig SettingsDialog::getConfig() const
@@ -411,6 +417,7 @@ AppConfig SettingsDialog::getConfig() const
     config.llm_optimizer_config.model_name = m_llmModelNameEdit->text().toStdString();
     config.llm_optimizer_config.api_key = m_llmApiKeyEdit->text().toStdString();
     config.llm_optimizer_config.context_sentences = m_llmContextSentencesSpin->value();
+    config.llm_optimizer_config.prompt = m_llmPromptEdit->toPlainText().toStdString();
 
     return config;
 }

@@ -93,20 +93,9 @@ void LlmOptimizer::sendRequest(const QString &context, const QString &current)
 
 QString LlmOptimizer::buildPrompt(const QString &context, const QString &current)
 {
-    QString prompt = R"(你是一个语音识别结果优化助手。你的任务是：
-1. 修正识别中的错词、别字
-2. 添加合适的标点符号
-3. 适当断句，使语句通顺
-4. 保持原意不变
-
-请只返回优化后的当前句子，不要添加其他说明。
-
-上下文历史：
-)";
-    prompt += context;
-    prompt += "\n当前句子：\n";
-    prompt += current;
-    prompt += "\n\n优化结果：";
+    QString prompt = QString::fromStdString(m_config.prompt);
+    prompt.replace("{context}", context);
+    prompt.replace("{current}", current);
     return prompt;
 }
 
