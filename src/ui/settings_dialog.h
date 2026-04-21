@@ -43,6 +43,7 @@ private:
     QPushButton *m_browseOutputBtn;
     QCheckBox *m_saveTextCheck;
     QCheckBox *m_saveAudioCheck;
+    QCheckBox *m_recognitionEnabledCheck;
 
     QComboBox *m_realtimeModelTypeCombo;
     QDoubleSpinBox *m_realtimeVadThresholdSpin;

@@ -76,6 +76,7 @@ struct AppConfig {
     std::string output_dir;
     bool save_text;
     bool save_audio;
+    bool recognition_enabled;
     AudioSource audio_source;
     std::string microphone_device_id;
     SubtitleWindowConfig subtitle_config;

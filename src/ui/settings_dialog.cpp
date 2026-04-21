@@ -67,6 +67,10 @@ void SettingsDialog::setupUI()
     m_saveAudioCheck->setChecked(true);
     generalLayout->addRow("", m_saveAudioCheck);
 
+    m_recognitionEnabledCheck = new QCheckBox("启用语音识别", this);
+    m_recognitionEnabledCheck->setChecked(true);
+    generalLayout->addRow("", m_recognitionEnabledCheck);
+
     basicTabLayout->addWidget(generalGroup);
     basicTabLayout->addStretch();
 
@@ -355,6 +359,7 @@ void SettingsDialog::setConfig(const AppConfig &config)
     m_outputDirEdit->setText(QString::fromStdString(config.output_dir));
     m_saveTextCheck->setChecked(config.save_text);
     m_saveAudioCheck->setChecked(config.save_audio);
+    m_recognitionEnabledCheck->setChecked(config.recognition_enabled);
 
     int audioSourceIndex = m_audioSourceCombo->findData(static_cast<int>(config.audio_source));
     if (audioSourceIndex >= 0) {
@@ -424,6 +429,7 @@ AppConfig SettingsDialog::getConfig() const
     config.output_dir = m_outputDirEdit->text().toStdString();
     config.save_text = m_saveTextCheck->isChecked();
     config.save_audio = m_saveAudioCheck->isChecked();
+    config.recognition_enabled = m_recognitionEnabledCheck->isChecked();
     config.audio_source = static_cast<AudioSource>(m_audioSourceCombo->currentData().toInt());
     config.microphone_device_id = m_microphoneDeviceCombo->currentData().toString().toStdString();
 

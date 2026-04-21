@@ -56,6 +56,7 @@ AppConfig CreateDefaultConfig() {
     config.output_dir = "";
     config.save_text = true;
     config.save_audio = true;
+    config.recognition_enabled = true;
     config.audio_source = AudioSource::kSystemAudio;
     config.microphone_device_id = "";
     
@@ -92,6 +93,7 @@ void SaveConfig(const AppConfig &config, const std::string &file_path) {
     settings.setValue("output_dir", QString::fromStdString(config.output_dir));
     settings.setValue("save_text", config.save_text);
     settings.setValue("save_audio", config.save_audio);
+    settings.setValue("recognition_enabled", config.recognition_enabled);
     settings.setValue("audio_source", static_cast<int>(config.audio_source));
     settings.setValue("microphone_device_id", QString::fromStdString(config.microphone_device_id));
     settings.endGroup();
@@ -167,6 +169,9 @@ AppConfig LoadConfig(const std::string &file_path) {
     }
     if (settings.contains("save_audio")) {
         config.save_audio = settings.value("save_audio").toBool();
+    }
+    if (settings.contains("recognition_enabled")) {
+        config.recognition_enabled = settings.value("recognition_enabled").toBool();
     }
     if (settings.contains("audio_source")) {
         config.audio_source = static_cast<AudioSource>(settings.value("audio_source").toInt());
