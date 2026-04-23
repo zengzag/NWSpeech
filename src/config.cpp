@@ -80,7 +80,7 @@ AppConfig CreateDefaultConfig() {
     config.llm_summary_config.api_url = "http://127.0.0.1:1234/v1";
     config.llm_summary_config.model_name = "gemma-4-e2b-it";
     config.llm_summary_config.api_key = "default_key";
-    config.llm_summary_config.prompt = "请根据以下会议记录，生成一份清晰、结构化的会议纪要。纪要应包含：\n1. 会议时间和主题\n2. 参会人员（如提及）\n3. 讨论的主要内容\n4. 形成的决议或结论\n5. 待办事项和责任人（如提及）\n\n请用简洁、专业的语言整理，使用适当的标题和列表格式。\n\n会议记录内容：\n{content}\n\n会议纪要：";
+    config.llm_summary_config.prompt = "请根据以下会议记录，生成一份清晰、结构化的会议纪要。纪要应包含：\n1. 会议时间和主题\n2. 参会人员（如提及）\n3. 讨论的主要内容\n4. 形成的决议或结论\n5. 待办事项和责任人（如提及）\n\n请用简洁、专业的语言整理，使用适当的标题和列表格式。\n\n会议记录为语音识别，可能有识别不准确的词，根据上下文理解修复。\n\n会议记录内容：\n{content}\n\n会议纪要：";
     
     return config;
 }
