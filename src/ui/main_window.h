@@ -52,6 +52,8 @@ private slots:
     void onOfflineError(const QString &error);
     void onToggleFloatingWindow();
     void styleToolbarButtons();
+    void onGenerateSummary();
+    void onSummaryResult(const QString &summary);
 
 private:
     void setupUI();
@@ -76,10 +78,14 @@ private:
     QLabel *m_timeLabel;
     QLabel *m_systemPartialLabel;
     QLabel *m_micPartialLabel;
+    QPushButton *m_summaryButton;
 
     std::unique_ptr<SpeechRecognitionService> m_service;
     std::unique_ptr<FloatingWindow> m_floatingWindow;
     std::unique_ptr<OfflineRecognitionService> m_offlineService;
+    std::unique_ptr<LlmOptimizer> m_llmOptimizer;
+
+    QStringList m_recognitionResults;
     QSystemTrayIcon *m_trayIcon;
     QMenu *m_trayMenu;
     QTimer *m_statusTimer;

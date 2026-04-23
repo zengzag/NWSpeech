@@ -67,6 +67,10 @@ void SettingsDialog::setupUI()
     m_saveAudioCheck->setChecked(true);
     generalLayout->addRow("", m_saveAudioCheck);
 
+    m_recognitionEnabledCheck = new QCheckBox("启用语音识别", this);
+    m_recognitionEnabledCheck->setChecked(true);
+    generalLayout->addRow("", m_recognitionEnabledCheck);
+
     basicTabLayout->addWidget(generalGroup);
     basicTabLayout->addStretch();
 
@@ -208,10 +212,75 @@ void SettingsDialog::setupUI()
     subtitleTabLayout->addWidget(subtitleGroup);
     subtitleTabLayout->addStretch();
 
+    QWidget *llmOptimizerTab = new QWidget(this);
+    QVBoxLayout *llmOptimizerTabLayout = new QVBoxLayout(llmOptimizerTab);
+    llmOptimizerTabLayout->setSpacing(10);
+
+    QGroupBox *llmOptimizerGroup = new QGroupBox("文本优化设置", this);
+    QFormLayout *llmOptimizerLayout = new QFormLayout(llmOptimizerGroup);
+    llmOptimizerLayout->setSpacing(8);
+
+    m_llmOptimizerEnabledCheck = new QCheckBox("启用文本优化", this);
+    llmOptimizerLayout->addRow("", m_llmOptimizerEnabledCheck);
+
+    m_llmOptimizerApiUrlEdit = new QLineEdit(this);
+    llmOptimizerLayout->addRow(new QLabel("API 地址:", this), m_llmOptimizerApiUrlEdit);
+
+    m_llmOptimizerModelNameEdit = new QLineEdit(this);
+    llmOptimizerLayout->addRow(new QLabel("模型名称:", this), m_llmOptimizerModelNameEdit);
+
+    m_llmOptimizerApiKeyEdit = new QLineEdit(this);
+    m_llmOptimizerApiKeyEdit->setEchoMode(QLineEdit::Password);
+    llmOptimizerLayout->addRow(new QLabel("API Key:", this), m_llmOptimizerApiKeyEdit);
+
+    m_llmOptimizerContextSentencesSpin = new QSpinBox(this);
+    m_llmOptimizerContextSentencesSpin->setRange(0, 10);
+    m_llmOptimizerContextSentencesSpin->setValue(3);
+    llmOptimizerLayout->addRow(new QLabel("上下文句子数:", this), m_llmOptimizerContextSentencesSpin);
+
+    m_llmOptimizerPromptEdit = new QTextEdit(this);
+    m_llmOptimizerPromptEdit->setMinimumHeight(150);
+    m_llmOptimizerPromptEdit->setPlaceholderText("提示词模板，支持 {context} 和 {current} 占位符");
+    llmOptimizerLayout->addRow(new QLabel("提示词模板:", this), m_llmOptimizerPromptEdit);
+
+    llmOptimizerTabLayout->addWidget(llmOptimizerGroup);
+    llmOptimizerTabLayout->addStretch();
+
+    QWidget *llmSummaryTab = new QWidget(this);
+    QVBoxLayout *llmSummaryTabLayout = new QVBoxLayout(llmSummaryTab);
+    llmSummaryTabLayout->setSpacing(10);
+
+    QGroupBox *llmSummaryGroup = new QGroupBox("会议纪要设置", this);
+    QFormLayout *llmSummaryLayout = new QFormLayout(llmSummaryGroup);
+    llmSummaryLayout->setSpacing(8);
+
+    m_llmSummaryEnabledCheck = new QCheckBox("启用会议纪要", this);
+    llmSummaryLayout->addRow("", m_llmSummaryEnabledCheck);
+
+    m_llmSummaryApiUrlEdit = new QLineEdit(this);
+    llmSummaryLayout->addRow(new QLabel("API 地址:", this), m_llmSummaryApiUrlEdit);
+
+    m_llmSummaryModelNameEdit = new QLineEdit(this);
+    llmSummaryLayout->addRow(new QLabel("模型名称:", this), m_llmSummaryModelNameEdit);
+
+    m_llmSummaryApiKeyEdit = new QLineEdit(this);
+    m_llmSummaryApiKeyEdit->setEchoMode(QLineEdit::Password);
+    llmSummaryLayout->addRow(new QLabel("API Key:", this), m_llmSummaryApiKeyEdit);
+
+    m_llmSummaryPromptEdit = new QTextEdit(this);
+    m_llmSummaryPromptEdit->setMinimumHeight(150);
+    m_llmSummaryPromptEdit->setPlaceholderText("提示词模板，支持 {content} 占位符");
+    llmSummaryLayout->addRow(new QLabel("提示词模板:", this), m_llmSummaryPromptEdit);
+
+    llmSummaryTabLayout->addWidget(llmSummaryGroup);
+    llmSummaryTabLayout->addStretch();
+
     tabWidget->addTab(basicTab, "基础");
     tabWidget->addTab(realtimeTab, "实时识别");
     tabWidget->addTab(offlineTab, "离线识别");
     tabWidget->addTab(subtitleTab, "浮窗");
+    tabWidget->addTab(llmOptimizerTab, "LLM 优化");
+    tabWidget->addTab(llmSummaryTab, "LLM 纪要");
 
     mainLayout->addWidget(tabWidget);
 
@@ -290,6 +359,7 @@ void SettingsDialog::setConfig(const AppConfig &config)
     m_outputDirEdit->setText(QString::fromStdString(config.output_dir));
     m_saveTextCheck->setChecked(config.save_text);
     m_saveAudioCheck->setChecked(config.save_audio);
+    m_recognitionEnabledCheck->setChecked(config.recognition_enabled);
 
     int audioSourceIndex = m_audioSourceCombo->findData(static_cast<int>(config.audio_source));
     if (audioSourceIndex >= 0) {
@@ -333,6 +403,19 @@ void SettingsDialog::setConfig(const AppConfig &config)
     m_subtitleTextColorEdit->setText(QString::fromStdString(config.subtitle_config.text_color));
     m_subtitleBgColorEdit->setText(QString::fromStdString(config.subtitle_config.background_color));
     m_subtitleOpacitySpin->setValue(config.subtitle_config.background_opacity);
+
+    m_llmOptimizerEnabledCheck->setChecked(config.llm_optimizer_config.enabled);
+    m_llmOptimizerApiUrlEdit->setText(QString::fromStdString(config.llm_optimizer_config.api_url));
+    m_llmOptimizerModelNameEdit->setText(QString::fromStdString(config.llm_optimizer_config.model_name));
+    m_llmOptimizerApiKeyEdit->setText(QString::fromStdString(config.llm_optimizer_config.api_key));
+    m_llmOptimizerContextSentencesSpin->setValue(config.llm_optimizer_config.context_sentences);
+    m_llmOptimizerPromptEdit->setPlainText(QString::fromStdString(config.llm_optimizer_config.prompt));
+
+    m_llmSummaryEnabledCheck->setChecked(config.llm_summary_config.enabled);
+    m_llmSummaryApiUrlEdit->setText(QString::fromStdString(config.llm_summary_config.api_url));
+    m_llmSummaryModelNameEdit->setText(QString::fromStdString(config.llm_summary_config.model_name));
+    m_llmSummaryApiKeyEdit->setText(QString::fromStdString(config.llm_summary_config.api_key));
+    m_llmSummaryPromptEdit->setPlainText(QString::fromStdString(config.llm_summary_config.prompt));
 }
 
 AppConfig SettingsDialog::getConfig() const
@@ -346,6 +429,7 @@ AppConfig SettingsDialog::getConfig() const
     config.output_dir = m_outputDirEdit->text().toStdString();
     config.save_text = m_saveTextCheck->isChecked();
     config.save_audio = m_saveAudioCheck->isChecked();
+    config.recognition_enabled = m_recognitionEnabledCheck->isChecked();
     config.audio_source = static_cast<AudioSource>(m_audioSourceCombo->currentData().toInt());
     config.microphone_device_id = m_microphoneDeviceCombo->currentData().toString().toStdString();
 
@@ -369,6 +453,19 @@ AppConfig SettingsDialog::getConfig() const
     config.subtitle_config.text_color = m_subtitleTextColorEdit->text().toStdString();
     config.subtitle_config.background_color = m_subtitleBgColorEdit->text().toStdString();
     config.subtitle_config.background_opacity = m_subtitleOpacitySpin->value();
+
+    config.llm_optimizer_config.enabled = m_llmOptimizerEnabledCheck->isChecked();
+    config.llm_optimizer_config.api_url = m_llmOptimizerApiUrlEdit->text().toStdString();
+    config.llm_optimizer_config.model_name = m_llmOptimizerModelNameEdit->text().toStdString();
+    config.llm_optimizer_config.api_key = m_llmOptimizerApiKeyEdit->text().toStdString();
+    config.llm_optimizer_config.context_sentences = m_llmOptimizerContextSentencesSpin->value();
+    config.llm_optimizer_config.prompt = m_llmOptimizerPromptEdit->toPlainText().toStdString();
+
+    config.llm_summary_config.enabled = m_llmSummaryEnabledCheck->isChecked();
+    config.llm_summary_config.api_url = m_llmSummaryApiUrlEdit->text().toStdString();
+    config.llm_summary_config.model_name = m_llmSummaryModelNameEdit->text().toStdString();
+    config.llm_summary_config.api_key = m_llmSummaryApiKeyEdit->text().toStdString();
+    config.llm_summary_config.prompt = m_llmSummaryPromptEdit->toPlainText().toStdString();
 
     return config;
 }

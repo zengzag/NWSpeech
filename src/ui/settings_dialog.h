@@ -10,6 +10,7 @@
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QFormLayout>
+#include <QTextEdit>
 #include "config.h"
 
 class SettingsDialog : public QDialog
@@ -42,6 +43,7 @@ private:
     QPushButton *m_browseOutputBtn;
     QCheckBox *m_saveTextCheck;
     QCheckBox *m_saveAudioCheck;
+    QCheckBox *m_recognitionEnabledCheck;
 
     QComboBox *m_realtimeModelTypeCombo;
     QDoubleSpinBox *m_realtimeVadThresholdSpin;
@@ -61,6 +63,19 @@ private:
     QLineEdit *m_subtitleTextColorEdit;
     QLineEdit *m_subtitleBgColorEdit;
     QSpinBox *m_subtitleOpacitySpin;
+
+    QCheckBox *m_llmOptimizerEnabledCheck;
+    QLineEdit *m_llmOptimizerApiUrlEdit;
+    QLineEdit *m_llmOptimizerModelNameEdit;
+    QLineEdit *m_llmOptimizerApiKeyEdit;
+    QSpinBox *m_llmOptimizerContextSentencesSpin;
+    QTextEdit *m_llmOptimizerPromptEdit;
+
+    QCheckBox *m_llmSummaryEnabledCheck;
+    QLineEdit *m_llmSummaryApiUrlEdit;
+    QLineEdit *m_llmSummaryModelNameEdit;
+    QLineEdit *m_llmSummaryApiKeyEdit;
+    QTextEdit *m_llmSummaryPromptEdit;
 
     AppConfig m_config;
 };

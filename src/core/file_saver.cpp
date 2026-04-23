@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <chrono>
 #include <ctime>
 
 FileSaver::FileSaver()
@@ -14,7 +15,7 @@ FileSaver::~FileSaver() {
     Close();
 }
 
-bool FileSaver::Initialize(const std::string& output_dir, bool save_text, bool save_audio) {
+bool FileSaver::Initialize(const std::string& output_dir, AudioSource audio_source, bool save_text, bool save_audio) {
     output_dir_ = output_dir;
     save_text_ = save_text;
     save_audio_ = save_audio;
@@ -22,29 +23,33 @@ bool FileSaver::Initialize(const std::string& output_dir, bool save_text, bool s
     std::string timestamp = GetTimestamp();
 
     if (save_text_) {
-        std::string system_text_path = output_dir_ + "/" + timestamp + "_recognition_system.txt";
-        std::string mic_text_path = output_dir_ + "/" + timestamp + "_recognition_mic.txt";
-
-        text_file_paths_[AudioSourceTag::kSystem] = system_text_path;
-        text_file_paths_[AudioSourceTag::kMicrophone] = mic_text_path;
-
-        text_files_[AudioSourceTag::kSystem].open(system_text_path, std::ios::out | std::ios::app);
-        text_files_[AudioSourceTag::kMicrophone].open(mic_text_path, std::ios::out | std::ios::app);
-
-        if (!text_files_[AudioSourceTag::kSystem].is_open() || !text_files_[AudioSourceTag::kMicrophone].is_open()) {
-            std::cerr << "Failed to open text files" << std::endl;
-            return false;
+        if (audio_source == AudioSource::kSystemAudio || audio_source == AudioSource::kBoth) {
+            std::string system_text_path = output_dir_ + "/" + timestamp + "_recognition_system.txt";
+            text_file_paths_[AudioSourceTag::kSystem] = system_text_path;
+            text_files_[AudioSourceTag::kSystem].open(system_text_path, std::ios::out | std::ios::app);
+            if (text_files_[AudioSourceTag::kSystem].is_open()) {
+                std::cout << "System text will be saved to: " << system_text_path << std::endl;
+            }
         }
-        std::cout << "System text will be saved to: " << system_text_path << std::endl;
-        std::cout << "Mic text will be saved to: " << mic_text_path << std::endl;
+        if (audio_source == AudioSource::kMicrophone || audio_source == AudioSource::kBoth) {
+            std::string mic_text_path = output_dir_ + "/" + timestamp + "_recognition_mic.txt";
+            text_file_paths_[AudioSourceTag::kMicrophone] = mic_text_path;
+            text_files_[AudioSourceTag::kMicrophone].open(mic_text_path, std::ios::out | std::ios::app);
+            if (text_files_[AudioSourceTag::kMicrophone].is_open()) {
+                std::cout << "Mic text will be saved to: " << mic_text_path << std::endl;
+            }
+        }
     }
 
     if (save_audio_) {
-        audio_writers_[AudioSourceTag::kSystem].audio_file_path = output_dir_ + "/" + timestamp + "_audio_system.wav";
-        audio_writers_[AudioSourceTag::kMicrophone].audio_file_path = output_dir_ + "/" + timestamp + "_audio_mic.wav";
-
-        std::cout << "System audio will be saved to: " << audio_writers_[AudioSourceTag::kSystem].audio_file_path << std::endl;
-        std::cout << "Mic audio will be saved to: " << audio_writers_[AudioSourceTag::kMicrophone].audio_file_path << std::endl;
+        if (audio_source == AudioSource::kSystemAudio || audio_source == AudioSource::kBoth) {
+            audio_writers_[AudioSourceTag::kSystem].audio_file_path = output_dir_ + "/" + timestamp + "_audio_system.wav";
+            std::cout << "System audio will be saved to: " << audio_writers_[AudioSourceTag::kSystem].audio_file_path << std::endl;
+        }
+        if (audio_source == AudioSource::kMicrophone || audio_source == AudioSource::kBoth) {
+            audio_writers_[AudioSourceTag::kMicrophone].audio_file_path = output_dir_ + "/" + timestamp + "_audio_mic.wav";
+            std::cout << "Mic audio will be saved to: " << audio_writers_[AudioSourceTag::kMicrophone].audio_file_path << std::endl;
+        }
     }
 
     initialized_ = true;
@@ -56,7 +61,11 @@ std::string FileSaver::GetTimestamp() {
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
 
     std::tm local_tm;
+#ifdef _WIN32
     localtime_s(&local_tm, &now_time);
+#else
+    localtime_r(&now_time, &local_tm);
+#endif
 
     std::ostringstream oss;
     oss << std::put_time(&local_tm, "%Y%m%d_%H%M%S");
@@ -76,7 +85,11 @@ void FileSaver::SaveText(const std::string& text, AudioSourceTag source) {
         std::time_t now_time = std::chrono::system_clock::to_time_t(now);
 
         std::tm local_tm;
+#ifdef _WIN32
         localtime_s(&local_tm, &now_time);
+#else
+        localtime_r(&now_time, &local_tm);
+#endif
 
         std::ostringstream oss;
         oss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S") << " - " << text << std::endl;

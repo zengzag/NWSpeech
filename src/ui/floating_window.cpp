@@ -66,12 +66,14 @@ void FloatingWindow::setupUI()
     m_systemLabel->setWordWrap(true);
     m_systemLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     m_systemLabel->setStyleSheet("color: #007AFF;");
+    m_systemLabel->setVisible(true);
     layout->addWidget(m_systemLabel);
 
     m_micLabel = new QLabel("", this);
     m_micLabel->setWordWrap(true);
     m_micLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     m_micLabel->setStyleSheet("color: #30D158;");
+    m_micLabel->setVisible(true);
     layout->addWidget(m_micLabel);
 
     applyConfig();
@@ -89,7 +91,7 @@ void FloatingWindow::setText(const QString &text, AudioSourceTag source)
         QString displayText = text.isEmpty() ? "" : "[系统] " + text;
         if (m_systemLabel->text() != displayText) {
             m_systemLabel->setText(displayText);
-            m_systemLabel->setVisible(!text.isEmpty());
+            m_systemLabel->setVisible(true);
             m_systemLabel->updateGeometry();
             m_systemLabel->repaint();
         }
@@ -97,7 +99,7 @@ void FloatingWindow::setText(const QString &text, AudioSourceTag source)
         QString displayText = text.isEmpty() ? "" : "[麦克风] " + text;
         if (m_micLabel->text() != displayText) {
             m_micLabel->setText(displayText);
-            m_micLabel->setVisible(!text.isEmpty());
+            m_micLabel->setVisible(true);
             m_micLabel->updateGeometry();
             m_micLabel->repaint();
         }
@@ -116,16 +118,16 @@ void FloatingWindow::clearText()
 void FloatingWindow::updateLabelVisibility(AudioSource source)
 {
     if (source == AudioSource::kSystemAudio) {
-        m_systemLabel->setVisible(!m_systemLabel->text().isEmpty());
+        m_systemLabel->setVisible(true);
         m_micLabel->setVisible(false);
         m_micLabel->clear();
     } else if (source == AudioSource::kMicrophone) {
-        m_micLabel->setVisible(!m_micLabel->text().isEmpty());
+        m_micLabel->setVisible(true);
         m_systemLabel->setVisible(false);
         m_systemLabel->clear();
     } else if (source == AudioSource::kBoth) {
-        m_systemLabel->setVisible(!m_systemLabel->text().isEmpty());
-        m_micLabel->setVisible(!m_micLabel->text().isEmpty());
+        m_systemLabel->setVisible(true);
+        m_micLabel->setVisible(true);
     }
     update();
 }

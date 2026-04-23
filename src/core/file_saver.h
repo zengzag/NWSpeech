@@ -40,7 +40,7 @@ public:
     FileSaver();
     ~FileSaver();
 
-    bool Initialize(const std::string& output_dir, bool save_text = true, bool save_audio = true);
+    bool Initialize(const std::string& output_dir, AudioSource audio_source, bool save_text = true, bool save_audio = true);
     void SaveText(const std::string& text, AudioSourceTag source);
     void SaveAudio(const std::vector<float>& samples, int32_t sample_rate, AudioSourceTag source);
     void Flush();

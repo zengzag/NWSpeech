@@ -52,6 +52,23 @@ struct AudioDeviceInfo {
     std::string name;
 };
 
+struct LlmOptimizerConfig {
+    bool enabled;
+    std::string api_url;
+    std::string model_name;
+    std::string api_key;
+    int context_sentences;
+    std::string prompt;
+};
+
+struct LlmSummaryConfig {
+    bool enabled;
+    std::string api_url;
+    std::string model_name;
+    std::string api_key;
+    std::string prompt;
+};
+
 struct AppConfig {
     std::string models_base_path;
     std::string vad_model_path;
@@ -59,12 +76,15 @@ struct AppConfig {
     std::string output_dir;
     bool save_text;
     bool save_audio;
+    bool recognition_enabled;
     AudioSource audio_source;
     std::string microphone_device_id;
     SubtitleWindowConfig subtitle_config;
     RecognitionModeConfig realtime_config;
     RecognitionModeConfig offline_config;
     bool floating_window_visible;
+    LlmOptimizerConfig llm_optimizer_config;
+    LlmSummaryConfig llm_summary_config;
 };
 
 void InitializeModelPaths(AppConfig &config);
