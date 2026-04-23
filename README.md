@@ -1,8 +1,14 @@
 # NWSpeech
 
+Windows 实时语音识别工具（本地模型），支持系统/麦克风音频捕获、浮窗字幕、LLM 文本优化、智能会议纪要。
+
 基于 C++ 和 Qt 6 的 Windows 实时语音识别应用。
 
 NWSpeech 使用 [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) 作为语音识别引擎，支持捕获系统音频或麦克风输入进行实时识别，并提供浮窗字幕功能。
+
+![功能演示](imgs/功能.gif)
+
+![设置界面](imgs/设置.gif)
 
 ## 功能特性
 
